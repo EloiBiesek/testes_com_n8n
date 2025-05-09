@@ -1,0 +1,25 @@
+{
+  "n8n-workflow-builder": {
+    "command": "node",
+    "args": ["./build/index.js"],
+    "env": {
+      "N8N_HOST": "https://your-n8n-instance.com/api/v1/",
+      "N8N_API_KEY": "YOUR_N8N_API_KEY_HERE"
+    },
+    "disabled": false,
+    "alwaysAllow": [
+      "list_workflows",
+      "create_workflow",
+      "create_workflow_and_activate",
+      "update_workflow",
+      "activate_workflow",
+      "deactivate_workflow",
+      "get_workflow",
+      "delete_workflow",
+      "list_executions",
+      "get_execution",
+      "delete_execution"
+    ],
+    "autoApprove": []
+  }
+} 
