@@ -1,5 +1,5 @@
 {
   "hooks": {
-    "postApply": "powershell -ExecutionPolicy Bypass -File ./.cursor/hooks/after-agent.ps1"
+    "postApply": "node ./.cursor/hooks/after-agent.js"
   }
 } 
