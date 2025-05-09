@@ -3,7 +3,20 @@ description:
 globs:
 alwaysApply: false
 ---
-_(cole aqui o conteúdo da rules.mdc que já definimos ou deixe como placeholder se já existir)_
+# Regras de Contribuição com Cursor
+
+1. Utilize o Cursor Agent para tarefas complexas.
+2. Todos os commits devem ter mensagens descritivas.
+3. Mantenha a estrutura de diretórios organizada.
+4. Adicione logs apropriados para alterações de workflows.
+5. Documente quaisquer mudanças significativas.
+6. Escreva código limpo e testável.
+7. Mantenha os workflows em JSON válido.
+8. Respeite a nomenclatura e padrões existentes.
+9. Atualize a documentação quando necessário.
+10. Utilize as ferramentas de sincronização corretamente.
+
+_Atualizado: Junho 2025_
 
 
 

@@ -1,0 +1,40 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# n8n Documentation
+
+## Main Documentation
+- [Official n8n Documentation](https://docs.n8n.io/)
+
+## Most Common Nodes
+
+| Node Name | Description |
+|-----------|-------------|
+| Webhook | Starts a workflow when called via HTTP request. Creates an endpoint that can trigger workflows when called. |
+| HTTP Request | Makes HTTP requests to any API or web service. Supports GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH. |
+| Function | Executes custom JavaScript code to process data. Can manipulate JSON data with full JavaScript capabilities. |
+| Set | Sets or overrides workflow data. Allows setting specific values in the workflow data or creating data from scratch. |
+| Merge | Merges data from multiple sources. Can combine data from multiple branches into a single output. |
+| IF | Conditionally routes workflow based on comparison operations. Enables branching based on conditions. |
+| Switch | Routes workflow execution based on expression results. Creates multiple execution paths depending on data values. |
+| SplitInBatches | Splits large arrays into smaller batches for processing. Helps handle rate limits and large datasets. |
+| MySQL | Interacts with MySQL databases. Execute queries, insert/update records, and fetch data from MySQL databases. |
+| Postgres | Interacts with PostgreSQL databases. Execute queries, insert/update records, and fetch data from Postgres databases. |
+
+## REST API Endpoints
+
+### Workflows API
+- Base endpoint: `/api/v1/workflows`
+- Operations:
+  - `GET /api/v1/workflows`: List all workflows
+  - `GET /api/v1/workflows/{id}`: Get a specific workflow
+  - `POST /api/v1/workflows`: Create a new workflow
+  - `PUT /api/v1/workflows/{id}`: Update a workflow
+  - `DELETE /api/v1/workflows/{id}`: Delete a workflow
+  - `POST /api/v1/workflows/{id}/activate`: Activate a workflow
+  - `POST /api/v1/workflows/{id}/deactivate`: Deactivate a workflow
+
+## Authentication
+Most API requests require authentication using an API key or token, which can be added in the Authorization header.

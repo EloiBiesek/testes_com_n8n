@@ -1,0 +1,245 @@
+{
+  "name": "Example Data Transform",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "data-transform",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Sample input data to transform\nreturn [\n  {\n    id: 1,\n    name: \"ECBIESEK Project A\",\n    data: {\n      status: \"active\",\n      dates: {\n        start: \"2025-01-15\",\n        end: \"2025-06-30\"\n      }\n    },\n    tags: [\"priority\", \"client\"]\n  },\n  {\n    id: 2,\n    name: \"ECBIESEK Project B\",\n    data: {\n      status: \"pending\",\n      dates: {\n        start: \"2025-03-01\",\n        end: \"2025-08-15\"\n      }\n    },\n    tags: [\"internal\"]\n  },\n  {\n    id: 3,\n    name: \"ECBIESEK Project C\",\n    data: {\n      status: \"completed\",\n      dates: {\n        start: \"2024-11-01\",\n        end: \"2025-02-28\"\n      }\n    },\n    tags: [\"archive\"]\n  }\n];"
+      },
+      "name": "Sample Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "jsonToBinary",
+        "sourceKey": "",
+        "options": {}
+      },
+      "name": "Format Data",
+      "type": "n8n-nodes-base.moveData",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json[\"data\"][\"status\"]}}",
+              "value2": "active"
+            }
+          ]
+        }
+      },
+      "name": "Filter Active",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "projectName",
+              "value": "={{$json[\"name\"]}}"
+            },
+            {
+              "name": "status",
+              "value": "={{$json[\"data\"][\"status\"]}}"
+            },
+            {
+              "name": "startDate",
+              "value": "={{$json[\"data\"][\"dates\"][\"start\"]}}"
+            },
+            {
+              "name": "endDate",
+              "value": "={{$json[\"data\"][\"dates\"][\"end\"]}}"
+            },
+            {
+              "name": "duration",
+              "value": "={{new Date($json[\"data\"][\"dates\"][\"end\"]) - new Date($json[\"data\"][\"dates\"][\"start\"])/(1000*60*60*24)}}"
+            },
+            {
+              "name": "priority",
+              "value": "={{$json[\"tags\"].includes(\"priority\") ? \"High\" : \"Normal\"}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Transform Active",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "projectName",
+              "value": "={{$json[\"name\"]}}"
+            },
+            {
+              "name": "status",
+              "value": "={{$json[\"data\"][\"status\"]}}"
+            },
+            {
+              "name": "archived",
+              "value": "={{$json[\"tags\"].includes(\"archive\")}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Transform Inactive",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        400
+      ]
+    },
+    {
+      "parameters": {},
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        1250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1450,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Sample Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample Data": {
+      "main": [
+        [
+          {
+            "node": "Format Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Data": {
+      "main": [
+        [
+          {
+            "node": "Filter Active",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Active": {
+      "main": [
+        [
+          {
+            "node": "Transform Active",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Transform Inactive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Active": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Inactive": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {},
+  "staticData": null,
+  "active": false
+} 

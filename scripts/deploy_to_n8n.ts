@@ -12,6 +12,8 @@ import fs from 'fs';
 import path from 'path';
 import { config } from 'dotenv';
 import fetch from 'node-fetch';
+// Import from the .cjs file
+const { logAction } = require('./action-logger.cjs');
 
 // Carrega variáveis de ambiente
 config({ path: path.resolve(process.cwd(), 'env/.env') });
@@ -66,6 +68,8 @@ async function deployWorkflow(filePath, existingWorkflows) {
     const existingWorkflow = existingWorkflows.find(w => w.name === workflowData.name);
 
     let response;
+    let actionType = 'update';
+    
     if (existingWorkflow) {
       // Atualiza workflow existente
       response = await fetch(`${N8N_API_URL}/workflows/${existingWorkflow.id}`, {
@@ -82,16 +86,35 @@ async function deployWorkflow(filePath, existingWorkflows) {
         body: JSON.stringify(workflowData)
       });
       console.log(`➕ Criando workflow: ${workflowData.name}`);
+      actionType = 'create';
     }
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
+    const result = await response.json();
+    
     console.log(`✅ Sucesso: ${workflowData.name}`);
+    
+    // Log successful deployment
+    logAction('deploy_workflow', {
+      name: workflowData.name,
+      id: result.id,
+      action: actionType,
+      file: path.basename(filePath)
+    });
+    
     return true;
   } catch (error) {
     console.error(`❌ Erro ao implantar ${filePath}:`, error);
+    
+    // Log failed deployment
+    logAction('deploy_workflow', {
+      file: path.basename(filePath),
+      error: error.message
+    }, 'failure');
+    
     return false;
   }
 }
@@ -106,23 +129,57 @@ async function processDirectory(dirPath, existingWorkflows) {
   console.log(`📋 Encontrados ${files.length} arquivos JSON`);
   
   let successCount = 0;
+  let failureCount = 0;
+  const results = [];
   
   for (const file of files) {
     const filePath = path.join(dirPath, file);
-    if (await deployWorkflow(filePath, existingWorkflows)) {
+    const success = await deployWorkflow(filePath, existingWorkflows);
+    
+    if (success) {
       successCount++;
+    } else {
+      failureCount++;
     }
+    
+    results.push({
+      file,
+      success
+    });
   }
   
   console.log(`📊 Resultado: ${successCount}/${files.length} workflows implantados com sucesso`);
+  
+  // Log bulk deployment results
+  logAction('deploy_directory', {
+    directory: path.basename(dirPath),
+    totalCount: files.length,
+    successCount,
+    failureCount,
+    results
+  }, failureCount === 0 ? 'success' : 'warning');
 }
 
 // Função principal
 async function main() {
+  const startTime = new Date();
+  
+  // Log start of deployment process
+  logAction('deploy_start', {
+    timestamp: startTime.toISOString(),
+    args: process.argv.slice(2)
+  });
+
   // Verifica se foi passado algum argumento
   if (process.argv.length < 3) {
     console.error('❌ Erro: Especifique um arquivo JSON ou diretório');
     console.log('Uso: node deploy_to_n8n.ts <arquivo.json ou diretório>');
+    
+    logAction('deploy_error', {
+      error: 'Missing argument',
+      timestamp: new Date().toISOString()
+    }, 'failure');
+    
     process.exit(1);
   }
 
@@ -131,26 +188,60 @@ async function main() {
   // Obtém os workflows existentes para verificação
   const existingWorkflows = await getWorkflowsFromN8n();
   
-  // Verifica se o alvo é um arquivo ou diretório
-  if (fs.existsSync(target)) {
-    const stats = fs.statSync(target);
-    
-    if (stats.isDirectory()) {
-      await processDirectory(target, existingWorkflows);
-    } else if (stats.isFile() && target.endsWith('.json')) {
-      if (await deployWorkflow(target, existingWorkflows)) {
-        console.log('✅ Workflow implantado com sucesso');
+  try {
+    // Verifica se o alvo é um arquivo ou diretório
+    if (fs.existsSync(target)) {
+      const stats = fs.statSync(target);
+      
+      if (stats.isDirectory()) {
+        await processDirectory(target, existingWorkflows);
+      } else if (stats.isFile() && target.endsWith('.json')) {
+        if (await deployWorkflow(target, existingWorkflows)) {
+          console.log('✅ Workflow implantado com sucesso');
+        } else {
+          console.error('❌ Falha ao implantar workflow');
+          process.exit(1);
+        }
       } else {
-        console.error('❌ Falha ao implantar workflow');
+        console.error('❌ Erro: O arquivo deve ter extensão .json');
+        
+        logAction('deploy_error', {
+          error: 'Invalid file type',
+          target
+        }, 'failure');
+        
         process.exit(1);
       }
     } else {
-      console.error('❌ Erro: O arquivo deve ter extensão .json');
+      console.error(`❌ Erro: ${target} não encontrado`);
+      
+      logAction('deploy_error', {
+        error: 'Target not found',
+        target
+      }, 'failure');
+      
       process.exit(1);
     }
-  } else {
-    console.error(`❌ Erro: ${target} não encontrado`);
-    process.exit(1);
+    
+    // Log successful completion
+    const endTime = new Date();
+    const duration = (endTime.getTime() - startTime.getTime()) / 1000; // in seconds
+    
+    logAction('deploy_complete', {
+      timestamp: endTime.toISOString(),
+      duration,
+      target: path.basename(target)
+    });
+    
+  } catch (error) {
+    // Log unexpected error
+    logAction('deploy_error', {
+      error: error.message,
+      stack: error.stack,
+      target: path.basename(target)
+    }, 'failure');
+    
+    throw error;
   }
 }
 

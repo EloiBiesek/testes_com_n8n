@@ -10,5 +10,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["scripts/**/*", "n8n-workflow-builder/**/*"]
+  "include": ["scripts/**/*", "n8n-workflow-builder/**/*", "types/**/*"]
 } 

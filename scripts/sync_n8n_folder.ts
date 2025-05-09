@@ -10,6 +10,8 @@ import fs from 'fs';
 import path from 'path';
 import { config } from 'dotenv';
 import fetch from 'node-fetch';
+// Import from the .cjs file
+const { logAction } = require('./action-logger.cjs');
 
 // Carrega variáveis de ambiente
 config({ path: path.resolve(process.cwd(), 'env/.env') });
@@ -127,6 +129,13 @@ async function pullFromN8n() {
   });
   
   console.log('✅ Sincronização concluída!');
+  
+  // Log action
+  logAction('sync_pull', {
+    timestamp: new Date().toISOString(),
+    count: workflows.length,
+    workflowNames: workflows.map(w => w.name)
+  });
 }
 
 /**
@@ -143,6 +152,7 @@ async function pushToN8n() {
   console.log(`🔍 Encontrados ${files.length} arquivos JSON na pasta local`);
   
   let successCount = 0;
+  const results = [];
   
   for (const file of files) {
     try {
@@ -153,13 +163,37 @@ async function pushToN8n() {
       const result = await pushWorkflowToN8n(workflowData, existingWorkflows);
       if (result) {
         successCount++;
+        results.push({
+          name: workflowData.name,
+          status: 'success',
+          id: result.id
+        });
+      } else {
+        results.push({
+          name: workflowData.name,
+          status: 'failure'
+        });
       }
     } catch (error) {
       console.error(`❌ Erro ao processar arquivo ${file}:`, error);
+      results.push({
+        name: file,
+        status: 'failure',
+        error: error.message
+      });
     }
   }
   
   console.log(`✅ Sincronização concluída! ${successCount}/${files.length} workflows enviados com sucesso.`);
+  
+  // Log action
+  logAction('sync_push', {
+    timestamp: new Date().toISOString(),
+    totalCount: files.length,
+    successCount,
+    failureCount: files.length - successCount,
+    results
+  }, successCount === files.length ? 'success' : 'warning');
 }
 
 // Executa a função apropriada com base nos argumentos
