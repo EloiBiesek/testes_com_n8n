@@ -1,15 +1,35 @@
 #!/usr/bin/env node
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
-// captura STDIN (output completo do Agent)
-const chunks = [];
-for await (const chunk of process.stdin) chunks.push(chunk);
-const output = Buffer.concat(chunks).toString('utf8');
+// Função principal que captura e salva o log
+async function captureAndSaveAgentLog() {
+  try {
+    // Captura STDIN (output completo do Agent)
+    const chunks = [];
+    for await (const chunk of process.stdin) chunks.push(chunk);
+    const output = Buffer.concat(chunks).toString('utf8');
 
-const logDir = path.resolve('cursor_logs');
-if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
-const ts = new Date().toISOString().replace(/:/g, '-').replace(/\..*/, '');
-const file = path.join(logDir, `${ts}.md`);
-fs.writeFileSync(file, `# Cursor Agent log – ${new Date().toISOString()}\n\n${output}`);
-console.log(`📝  Log automático salvo em ${path.relative('.', file)}`); 
+    // Cria diretório de logs se não existir
+    const logDir = path.resolve('cursor_logs');
+    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+
+    // Cria nome do arquivo com timestamp
+    const ts = new Date().toISOString().replace(/:/g, '-').replace(/\..*/, '');
+    const file = path.join(logDir, `${ts}.md`);
+
+    // Escreve o conteúdo no arquivo
+    fs.writeFileSync(
+      file, 
+      `# Cursor Agent Log - ${new Date().toISOString()}\n\n${output}`,
+      'utf8'
+    );
+
+    console.log(`📝 Log automático salvo em ${path.relative('.', file)}`);
+  } catch (error) {
+    console.error(`❌ Erro ao salvar log: ${error.message}`);
+  }
+}
+
+// Executa a função principal
+captureAndSaveAgentLog();
