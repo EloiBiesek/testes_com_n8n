@@ -8,6 +8,10 @@
     "deploy": "node scripts/deploy_to_n8n.ts",
     "sync:pull": "node scripts/sync_n8n_folder.ts",
     "sync:push": "node scripts/sync_n8n_folder.ts push",
+    "logs": "node scripts/view-logs.cjs",
+    "logs:today": "node scripts/view-logs.cjs",
+    "logs:actions": "node scripts/view-logs.cjs",
+    "test:logger": "node scripts/action-logger.cjs test_logger '{\"source\":\"manual\",\"message\":\"Test log entry\"}'",
     "lint": "eslint \"**/*.{ts,js,json}\" --fix",
     "test": "vitest"
   },
