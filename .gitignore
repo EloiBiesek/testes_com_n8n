@@ -9,3 +9,10 @@ dist/
 .vscode/
 # Cursor session logs
 # cursor_logs/ 
+
+# === Secrets / Env Files ===
+.env.*
+!env/sample.env
+
+# Caso você mantenha secrets em JSON/TOML/etc.:
+secrets.* 

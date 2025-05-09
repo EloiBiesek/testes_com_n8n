@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-    "scripts": {    "build": "tsc -p tsconfig.json",    "deploy": "node scripts/deploy_to_n8n.ts",    "sync:pull": "node scripts/sync_n8n_folder.ts",    "sync:push": "node scripts/sync_n8n_folder.ts push",    "logs": "node scripts/view-logs.cjs",    "logs:today": "node scripts/view-logs.cjs",    "logs:actions": "node scripts/view-logs.cjs",    "test:logger": "node scripts/action-logger.cjs test_logger '{\"source\":\"manual\",\"message\":\"Test log entry\"}'",    "docs:crawl": "node scripts/fetch_docs.ts",    "lint": "eslint \"**/*.{ts,js,json}\" --fix",    "test": "vitest"
+    "scripts": {    "build": "tsc -p tsconfig.json",    "deploy": "node scripts/deploy_to_n8n.ts",    "sync:pull": "node scripts/sync_n8n_folder.ts",    "sync:push": "node scripts/sync_n8n_folder.ts push",    "logs": "node scripts/view-logs.cjs",    "logs:today": "node scripts/view-logs.cjs",    "logs:actions": "node scripts/view-logs.cjs",    "test:logger": "node scripts/action-logger.cjs test_logger '{\"source\":\"manual\",\"message\":\"Test log entry\"}'",    "docs:crawl": "node scripts/fetch_docs.ts",    "lint": "eslint \"**/*.{ts,js,json}\" --fix",    "test": "vitest",    "setup:env": "ts-node scripts/setup_env.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.0",
