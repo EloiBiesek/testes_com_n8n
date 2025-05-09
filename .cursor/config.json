@@ -1,5 +1,5 @@
 {
   "hooks": {
-    "postApply": "./.cursor/hooks/after-agent.sh"
+    "postApply": "powershell -File ./.cursor/hooks/after-agent.ps1"
   }
 } 
