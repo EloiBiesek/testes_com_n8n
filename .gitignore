@@ -6,4 +6,6 @@ dist/
 # Env
 .env
 # IDE
-.vscode/ 
+.vscode/
+# Cursor session logs
+# cursor_logs/ 

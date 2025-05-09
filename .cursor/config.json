@@ -1,0 +1,5 @@
+{
+  "hooks": {
+    "postApply": "./.cursor/hooks/after-agent.sh"
+  }
+} 
