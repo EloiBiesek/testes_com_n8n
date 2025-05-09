@@ -1,0 +1,30 @@
+{
+  "name": "testes_com_n8n",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "deploy": "node scripts/deploy_to_n8n.ts",
+    "sync:pull": "node scripts/sync_n8n_folder.ts",
+    "sync:push": "node scripts/sync_n8n_folder.ts push",
+    "lint": "eslint \"**/*.{ts,js,json}\" --fix",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.0",
+    "n8n-workflow-builder": "workspace:*",
+    "node-fetch": "^3.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+} 
